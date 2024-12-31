@@ -6,6 +6,7 @@ import { HealthCheckModule } from './healthcheck/healthcheck.module';
 import { IntercepterModule } from './intercepter/intercepter.module';
 import { ApiModule } from './api/api.module';
 import { VersioningModule } from './versioning/versioning.module';
+import { DiModule } from './di/di.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { VersioningModule } from './versioning/versioning.module';
     IntercepterModule,
     ApiModule,
     VersioningModule,
+    DiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
