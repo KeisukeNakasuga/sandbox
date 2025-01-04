@@ -1,7 +1,8 @@
 import { Controller, Get, Inject } from "@nestjs/common";
 import { DiServiceA } from "./di.service_a";
 import { DiServiceB } from "./di.service_b";
-import { DiServiceInterface } from "./di.service_c";
+import { DiServiceD } from "./di.serice_d";
+import { DiServiceC, DiServiceInterface } from "./di.service_c";
 
 @Controller('di')
 export class DiController {
@@ -12,6 +13,9 @@ export class DiController {
 
   @Inject(DiServiceB)
   private readonly service_b: DiServiceB;
+
+  @Inject(DiServiceD)
+  private readonly service_d: DiServiceInterface;
 
   @Get('di_a')
   public di_a() {
@@ -31,6 +35,13 @@ export class DiController {
   public di_c() {
     console.log('run DiController.di_c()');
     this.service_c.run();
+    return;
+  }
+
+  @Get('di_d')
+  public di_d() {
+    console.log('run DiController.di_d()');
+    this.service_d.run();
     return;
   }
 }

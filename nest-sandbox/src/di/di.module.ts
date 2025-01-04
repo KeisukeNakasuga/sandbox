@@ -3,6 +3,7 @@ import { DiServiceA } from "./di.service_a";
 import { DiController } from "./di.controller";
 import { DiServiceB } from "./di.service_b";
 import { DiServiceC } from "./di.service_c";
+import { DiServiceD } from "./di.serice_d";
 
 @Module({
   providers: [
@@ -11,7 +12,8 @@ import { DiServiceC } from "./di.service_c";
     {
       provide: 'DiServiceInterface',
       useClass: DiServiceC,
-    }
+    },
+    DiServiceD,
   ],
   controllers: [
     DiController,
