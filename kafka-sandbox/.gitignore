@@ -1,0 +1,8 @@
+./docker/broker0/*
+./docker/broker1/*
+./docker/broker2/*
+!./docker/broker0/.gitkeep
+!./docker/broker1/.gitkeep
+!./docker/broker2/.gitkeep
+
+./service-*/node_modules/*
