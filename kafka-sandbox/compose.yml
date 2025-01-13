@@ -119,11 +119,13 @@ services:
         SERVICE_NAME: service-a
     ports:
       - 3333:3000
-    volumes:
-      - ./service-a:/usr/src/app
-      - /usr/src/app/node_modules
     networks:
       - kafka-sandbox-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/healthcheck/app | jq -e '.status == \"ok\"'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
     depends_on:
       kafka-broker-0:
         condition: service_healthy
@@ -141,11 +143,13 @@ services:
         SERVICE_NAME: service-b
     ports:
       - 3334:3000
-    volumes:
-      - ./service-b:/usr/src/app
-      - /usr/src/app/node_modules
     networks:
       - kafka-sandbox-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/healthcheck/app | jq -e '.status == \"ok\"'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
     depends_on:
       kafka-broker-0:
         condition: service_healthy
@@ -163,11 +167,13 @@ services:
         SERVICE_NAME: service-c
     ports:
       - 3335:3000
-    volumes:
-      - ./service-c:/usr/src/app
-      - /usr/src/app/node_modules
     networks:
       - kafka-sandbox-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/healthcheck/app | jq -e '.status == \"ok\"'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
     depends_on:
       kafka-broker-0:
         condition: service_healthy
