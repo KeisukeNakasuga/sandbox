@@ -10,7 +10,7 @@ export class HealthCheckController {
 
   @Get('app')
   @HealthCheck()
-  public check() {
+  public checkApp() {
     return this.healthCheckService.check([
       () => this.httpHealthIndicator.responseCheck(
         process.env.SERVICE_NAME,
