@@ -181,6 +181,32 @@ services:
       kafka-initializer:
         condition: service_completed_successfully
 
+  service-b-replica:
+    container_name: service-b-replica
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.dev
+      args:
+        SERVICE_NAME: service-b-replica
+    ports:
+      - 3336:3000
+    networks:
+      - kafka-sandbox-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/healthcheck/app | jq -e '.status == \"ok\"'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    depends_on:
+      kafka-broker-0:
+        condition: service_healthy
+      kafka-broker-1:
+        condition: service_healthy
+      kafka-broker-2:
+        condition: service_healthy
+      kafka-initializer:
+        condition: service_completed_successfully
+
   service-c:
     container_name: service-c
     build:
