@@ -125,7 +125,8 @@ services:
         condition: service_healthy
     command: >
       /bin/bash -c "
-      ./kafka-topics.sh --create --if-not-exists --topic event-a --replication-factor=2 --partitions=10 --bootstrap-server kafka-broker-0:9092
+      ./kafka-topics.sh --create --if-not-exists --topic event-a --replication-factor=2 --partitions=10 --bootstrap-server kafka-broker-0:9092 &&
+      ./kafka-topics.sh --create --if-not-exists --topic event-b --replication-factor=2 --partitions=10 --bootstrap-server kafka-broker-0:9092
       "
 
   service-a:

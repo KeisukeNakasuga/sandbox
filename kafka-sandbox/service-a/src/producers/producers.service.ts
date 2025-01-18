@@ -15,7 +15,8 @@ export class ProduceEventAService implements ProduceEvent {
   public async produce() {
     try {
       const uuid = uuidv4();
-      const now = dayjs().format('YYYY-MM-DD HH:mm:ss'); 
+      const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
+      const serviceName = process.env.SERVICE_NAME;
 
       const res = await this.kafkaService
         .getClient()
@@ -23,7 +24,7 @@ export class ProduceEventAService implements ProduceEvent {
           messages: {
             key: uuid,
             value: JSON.stringify({
-              message: 'event-a test message.',
+              message: `event-a test message by ${serviceName}.`,
               createdAt: now,
             }),
           },
@@ -31,8 +32,39 @@ export class ProduceEventAService implements ProduceEvent {
         .toPromise();
 
       return res;
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
   } 
+}
+
+@Injectable()
+export class ProduceEventBService implements ProduceEvent {
+  @Inject(KafkaService)
+  private readonly kafkaService: KafkaService;
+
+  public async produce() {
+    try {
+      const uuid = uuidv4();
+      const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
+      const serviceName = process.env.SERVICE_NAME;
+
+      const res = await this.kafkaService
+        .getClient()
+        .send('event-b', {
+          messages: {
+            key: uuid,
+            value: JSON.stringify({
+              message: `event-b test message by ${serviceName}.`,
+              createdAt: now,
+            }),
+          },
+        })
+        .toPromise();
+
+      return res;
+    } catch (err) {
+      console.log(err);
+    }
+  }
 }

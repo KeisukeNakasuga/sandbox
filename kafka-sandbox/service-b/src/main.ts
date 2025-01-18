@@ -15,6 +15,9 @@ async function bootstrap() {
           'kafka-broker-2:9094',
         ],
       },
+      consumer: {
+        groupId: 'service-b-consumer',
+      },
     },
   });
 
