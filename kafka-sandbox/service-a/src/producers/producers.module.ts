@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ProducersController } from "./producers.controller";
-import { ProduceEventAService, ProduceEventBService } from "./producers.service";
+import { ProduceEventA2Service, ProduceEventAService, ProduceEventBService } from "./producers.service";
 import { KafkaModule } from "src/kafka/kafka.module";
 
 @Module({
@@ -9,6 +9,7 @@ import { KafkaModule } from "src/kafka/kafka.module";
   ],
   providers: [
     ProduceEventAService,
+    ProduceEventA2Service,
     ProduceEventBService,
   ],
   controllers: [

@@ -1,13 +1,15 @@
 import { Controller } from "@nestjs/common";
-import { Ctx, EventPattern, KafkaContext, Payload } from "@nestjs/microservices";
+import { Ctx, EventPattern, KafkaContext, MessagePattern, Payload } from "@nestjs/microservices";
 
 @Controller()
 export class ConsumersController {
-  @EventPattern('event-a')
+  @MessagePattern('event-a')
   public consumeEventA(
-    @Payload() message: any,
+    @Payload() payload: any,
     @Ctx() context: KafkaContext,
   ) {
-    console.log('service-b consume event-a.');
+    const message = `service-b-replica consume event-a ${JSON.stringify(payload)}.`
+    console.log(message);
+    return { message: message };
   }
 }

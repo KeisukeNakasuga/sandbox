@@ -7,7 +7,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   private readonly client: ClientKafka;
 
   public async onModuleInit() {
-    // TODO ここでこのサービスが購読するtopic名を設定
+    this.client.subscribeToResponseOf('event-a');
     await this.client.connect();
   }
 
