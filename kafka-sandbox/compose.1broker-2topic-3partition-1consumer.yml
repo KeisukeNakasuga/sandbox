@@ -1,0 +1,133 @@
+services:
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8080:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: false
+      KAFKA_CLUSTERS_0_NAME: kafka-cluster-0
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-broker-0:9092
+    networks:
+      - kafka-sandbox-network
+    depends_on:
+      kafka-broker-0:
+        condition: service_healthy
+
+  kafka-broker-0:
+    container_name: kafka-broker-0
+    image: &kafka-image apache/kafka:3.8.0
+    ports:
+      - 9092:9092
+    volumes:
+      - ./docker/broker0:/var/lib/kafka/data
+    environment:
+      KAFKA_NODE_ID: 0
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://kafka-broker-0:29092,CONTROLLER://kafka-broker-0:29093,EXTERNAL://kafka-broker-0:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-broker-0:29092,EXTERNAL://kafka-broker-0:9092
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 0@kafka-broker-0:29093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSET_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_OFFSETS_STORAGE: kafka
+      KAFKA_LOG_DIRS: /tmp/kafka/logs
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      CLUSTER_ID: kafka-sandbox-cluster
+    networks:
+      - kafka-sandbox-network
+    healthcheck:
+      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "kafka-broker-0:9092", "--list"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  kafka-initializer:
+    container_name: kafka-initializer
+    image: *kafka-image
+    working_dir: /opt/kafka/bin
+    networks:
+      - kafka-sandbox-network
+    depends_on:
+      kafka-broker-0:
+        condition: service_healthy
+    command: >
+      /bin/bash -c "
+      ./kafka-topics.sh --create --if-not-exists --topic event-a --replication-factor=1 --partitions=3 --bootstrap-server kafka-broker-0:9092 &&
+      ./kafka-topics.sh --create --if-not-exists --topic event-b --replication-factor=1 --partitions=3 --bootstrap-server kafka-broker-0:9092 &&
+      ./kafka-topics.sh --create --if-not-exists --topic __consumer_offsets --replication-factor=1 --partitions=1 --bootstrap-server kafka-broker-0:9092
+      "
+
+  service-a:
+    container_name: service-a
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.dev
+      args:
+        SERVICE_NAME: service-a
+    ports:
+      - 3333:3000
+    networks:
+      - kafka-sandbox-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/healthcheck/app | jq -e '.status == \"ok\"'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    depends_on:
+      kafka-broker-0:
+        condition: service_healthy
+      kafka-initializer:
+        condition: service_completed_successfully
+
+  service-b:
+    container_name: service-b
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.dev
+      args:
+        SERVICE_NAME: service-b
+    ports:
+      - 3334:3000
+    networks:
+      - kafka-sandbox-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/healthcheck/app | jq -e '.status == \"ok\"'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    depends_on:
+      kafka-broker-0:
+        condition: service_healthy
+      kafka-initializer:
+        condition: service_completed_successfully
+
+  service-b-replica:
+    container_name: service-b-replica
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.dev
+      args:
+        SERVICE_NAME: service-b-replica
+    ports:
+      - 3336:3000
+    networks:
+      - kafka-sandbox-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/healthcheck/app | jq -e '.status == \"ok\"'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    depends_on:
+      kafka-broker-0:
+        condition: service_healthy
+      kafka-initializer:
+        condition: service_completed_successfully
+
+networks:
+  kafka-sandbox-network:
+    driver: bridge
+    name: kafka-sandbox-network
