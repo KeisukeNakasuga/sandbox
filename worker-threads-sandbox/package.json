@@ -1,0 +1,19 @@
+{
+  "name": "worker-threads-sandbox",
+  "version": "0.0.1",
+  "description": "sandbox for worker threads",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "typescript": "^6.0.3"
+  },
+  "volta": {
+    "node": "26.3.0"
+  }
+}
