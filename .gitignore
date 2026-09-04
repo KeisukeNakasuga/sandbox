@@ -1,1 +1,4 @@
 .idea/
+.cpcache
+.clj-kondo
+.lsp

@@ -1,0 +1,10 @@
+services:
+  clojure:
+    image: clojure:temurin-25-tools-deps
+    working_dir: /app
+    volumes: ["./clojure:/app", "m2-cache:/root/.m2"]
+    stdin_open: true
+    tty: true
+
+volumes:
+  m2-cache:
