@@ -5,6 +5,8 @@ services:
     volumes: ["./clojure:/app", "m2-cache:/root/.m2"]
     stdin_open: true
     tty: true
+    ports:
+      - "127.0.0.1:12345:12345"
 
 volumes:
   m2-cache:
