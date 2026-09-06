@@ -7,6 +7,7 @@ services:
     tty: true
     ports:
       - "127.0.0.1:12345:12345"
+      - "127.0.0.1:7888:7888"
 
 volumes:
   m2-cache:

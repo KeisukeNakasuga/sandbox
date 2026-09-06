@@ -1,4 +1,5 @@
 .idea/
 .cpcache
 .clj-kondo
+.nrepl-port
 .lsp
