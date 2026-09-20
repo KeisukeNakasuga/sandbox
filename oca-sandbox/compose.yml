@@ -6,4 +6,4 @@ services:
       - "3000:3000"
     volumes:
       - ./backend:/app
-    command: bun run --watch index.ts
+    command: bun run --watch src/main.ts
