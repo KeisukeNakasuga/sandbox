@@ -3,3 +3,5 @@
 .clj-kondo
 .nrepl-port
 .lsp
+*.mov
+*.zip
