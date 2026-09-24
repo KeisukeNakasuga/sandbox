@@ -1112,4 +1112,141 @@ Password:
 
 - ソケットバッファサイズ、ウィンドウサイズスケーリングなどを試してみるといいかも
 
+## Bun.serve(sendfileの利用)
+```bash
+wrk -t2 -c50 -d30s --timeout 60s http://localhost:3001/videos/1
+sudo perf trace -s -p 929489 -- sleep 30
+```
 
+```bash
+ Bun Pool 1 (929747), 1382 events, 0.1%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   futex                540     60 26719.693     0.000    49.481   266.317      4.37%
+   close                151      0     0.627     0.003     0.004     0.006      0.82%
+
+
+ Bun Pool 0 (929746), 1484 events, 0.2%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   futex                564     57 26719.298     0.000    47.375   287.597      4.32%
+   close                178      0     0.758     0.003     0.004     0.008      1.05%
+
+
+ HeapHelper (929871), 2104 events, 0.2%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   futex                472      9 27999.904     0.000    59.322  1001.594     18.33%
+   sched_yield          580      0     1.210     0.001     0.002     0.004      0.54%
+
+
+ HeapHelper (929867), 2217 events, 0.2%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   futex                469     13 27999.667     0.000    59.701  1001.608     18.33%
+   sched_yield          639      0     1.289     0.001     0.002     0.010      0.78%
+
+
+ HeapHelper (929866), 2227 events, 0.2%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   futex                462     15 27999.507     0.000    60.605  1001.601     18.32%
+   sched_yield          651      0     1.351     0.001     0.002     0.006      0.65%
+
+
+ HeapHelper (929869), 2228 events, 0.2%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   futex                504      7 27999.778     0.000    55.555  1001.601     18.37%
+   sched_yield          609      0     1.227     0.001     0.002     0.004      0.59%
+
+
+ HeapHelper (929870), 2478 events, 0.3%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   futex                496     11 27999.811     0.000    56.451  1001.191     18.36%
+   sched_yield          742      0     1.240     0.001     0.002     0.003      0.78%
+
+
+ HeapHelper (929868), 2697 events, 0.3%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   futex                526     14 27999.600     0.000    53.231  1001.586     18.39%
+   sched_yield          823      0     1.331     0.001     0.002     0.011      1.05%
+
+
+ HeapHelper (929865), 3042 events, 0.3%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   futex                546     16 27999.383     0.000    51.281  1001.588     18.41%
+   sched_yield          975      0     1.430     0.001     0.001     0.010      0.80%
+
+
+ mi-scavenger (929654), 231084 events, 24.1%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   futex             115545      2 28809.351     0.000     0.249  1001.507      4.41%
+   madvise               17      0     0.316     0.007     0.019     0.028     11.77%
+
+
+ bun (929489), 706785 events, 73.8%
+
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   epoll_pwait2      115544      0 20724.485     0.000     0.179  1001.047      6.13%
+   sendfile          117420      0  7386.967     0.002     0.063     5.537      0.26%
+   futex             116884     73   198.231     0.001     0.002     0.303      0.22%
+   sendto               362      0     4.719     0.008     0.013     0.032      1.43%
+   openat               362      0     2.196     0.003     0.006     0.018      2.79%
+   sched_yield         1221      0     1.849     0.001     0.002     0.032      2.15%
+   epoll_ctl            746      0     1.349     0.001     0.002     0.011      1.49%
+   recvfrom             364      0     0.779     0.002     0.002     0.008      1.24%
+   fstat                361      0     0.652     0.001     0.002     0.006      1.67%
+   pread64               36      0     0.259     0.003     0.007     0.055     19.17%
+   accept4               54      2     0.201     0.003     0.004     0.011      5.02%
+   setsockopt            52      0     0.069     0.001     0.001     0.002      1.74%
+   close                  2      0     0.059     0.022     0.030     0.037     26.49%
+   clone                  1      0     0.029     0.029     0.029     0.029      0.00%
+   rt_sigprocmask         2      0     0.003     0.001     0.001     0.002     19.71%
+   sched_getaffinity        1      0     0.002     0.002     0.002     0.002      0.00%
+```
+
+```
+❯ sudo perf stat -p 929489 -- sleep 30
+Password:
+
+ Performance counter stats for process id '929489':
+
+           229,479      context-switches                 #  24424.0 cs/sec  cs_per_second
+             1,253      cpu-migrations                   #    133.4 migrations/sec  migrations_per_second
+               581      page-faults                      #     61.8 faults/sec  page_faults_per_second
+          9,395.62 msec task-clock                       #      0.3 CPUs  CPUs_utilized
+       804,086,653      branch-misses                    #      7.6 %  branch_miss_rate         (50.16%)
+    10,519,765,659      branches                         #   1119.6 M/sec  branch_frequency     (49.72%)
+    47,662,515,620      cpu-cycles                       #      5.1 GHz  cycles_frequency       (66.79%)
+    47,729,418,707      instructions                     #      1.0 instructions  insn_per_cycle  (49.84%)
+    22,013,865,594      stalled-cycles-frontend          #     0.46 frontend_cycles_idle        (50.28%)
+
+      30.001404366 seconds time elapsed
+```
